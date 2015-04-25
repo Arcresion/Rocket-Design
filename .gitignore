@@ -1,0 +1,65 @@
+/* Find the optimal pressure and volume of water combination for a water bottle rocket to launch and hit a target at 150 ft) */
+
+#include<iostream>
+#include<stdlib.h>
+#include<iomanip>
+#include<cmath>
+
+using namespace std;  
+
+double massflowRate(double dP, float disCo, float roe, float A);   /* mass flow rate using change in pressures */
+
+int main () {
+	
+	double disCo, roe, g, Dc, A;      /* cd=discharge coefficient, roe=density of water, g=gravity, Dc=drag coefficient, A=cross-sect area*/
+	disCo=.98;
+	roe=998;
+	g=9.8;
+	A=3.14159*.000121;
+	Dc=.29;
+	
+	cout<<setw(15)<<left<<"Pressure"<<setw(15)<<left<<"Mass of H2O"<<setw(15)<<"Range"<<endl;
+	
+	double distance, vBottle, acc, force, netForce, mRock, time, mH2O, vExit, thrust, mAvg, rDrag, rForce, volH2O, wRock, dP, mStar;
+	mRock = 1.0;
+	mAvg = (wRock / g) + mH2O/2;
+	mH2O = roe * volH2O;
+	
+dP = 30;	
+while (dP<=65)      /* loop for change in pressure */
+	{
+	
+		mH2O = 400;             /* in milliliters */
+		while (mH2O<=1100)	   /* loop for change in mass of H2O per change in Pressure */
+		{
+		vExit = massflowRate(dP, disCo, roe, A) / (roe * A);   /* Finding exit velocity of water leaving rocket */
+		thrust = massflowRate(dP, disCo, roe, A) * vExit;      /* finding thrust of rocket */
+		netForce = thrust - (mAvg * g); 						/* finding the net forces on the rocket */
+		acc = netForce / mRock;                           		/* finding the acceleration of the rocket */
+		time = mH2O / massflowRate(dP, disCo, roe, A);   		/* finding the time the rocket travels */     
+		vBottle = acc * time;                        			/* finding the velocity of the rocket */       
+		distance = (pow(vBottle,2)) / g;						/* range of the rocket in metres */
+		rDrag = distance * (1-Dc);								/* range due to drag */
+		rForce = rDrag - (0.00015 * pow((volH2O-700),2)) + 75;	/* final range with all forces acting on rocket */
+		
+		if(rForce>145 && rForce<155)								/* displays all values that provide a range of 145-155 m with the respective pressure and volumes */
+		cout<<setw(10)<<dP<<setw(10)<<mH2O<<setw(10)<<rForce<<endl;
+	
+		mH2O = mH2O + 25;	
+		}
+		
+	dP++;	
+	}
+	
+	
+system("pause");
+return 0;
+}
+
+
+
+double massflowRate (double dP, float disCo, float roe, float A) {	/* just a function to evaluate mass flow rate of water */
+	double mStar;
+	mStar = A * disCo * sqrt(2 * roe * dP);
+return mStar;
+}
